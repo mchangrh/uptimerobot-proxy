@@ -17,7 +17,7 @@ async function getCachedResponse(event) {
   if (!response) {
     console.log("cache miss")
     response = await fetch(cacheUrl, options)
-    const newResponse = new Response(response.body)
+    const newResponse = new Response(response.clone().body)
     newResponse.headers.append("Cache-Control", "s-maxage=60")
     event.waitUntil(cache.put(cacheUrl, newResponse))
   }
@@ -26,7 +26,6 @@ async function getCachedResponse(event) {
 
 async function handleRequest(event) {
   const requestURL = new URL(event.request.url)
-  console.log(requestURL.pathname)
   if (!requestURL.pathname.startsWith("/id")) return new Response(null, { status: 404 })
   const lookupid = requestURL.pathname.substring(4)
 
@@ -44,5 +43,5 @@ async function handleRequest(event) {
   const monitorStatus = (bulkData.monitors.find(mon => mon.id == lookupid).status || 10)
   const resJSON = { schemaVersion: 1, label: "", ...statusMap[monitorStatus] }
 
-  return new Response(JSON.stringify(resJSON))
+  return new Response(JSON.stringify(resJSON), { headers: { "Content-Type": "application/json" }})
 }
