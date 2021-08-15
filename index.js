@@ -18,7 +18,7 @@ async function getCachedResponse(event) {
     console.log("cache miss")
     response = await fetch(cacheUrl, options)
     const newResponse = new Response(response.clone().body)
-    newResponse.headers.append("Cache-Control", "s-maxage=60")
+    newResponse.headers.append("Cache-Control", "s-maxage=120")
     event.waitUntil(cache.put(cacheUrl, newResponse))
   }
   return response
